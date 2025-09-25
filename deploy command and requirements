@@ -75,14 +75,13 @@ CMD ["streamlit", "run", "deploy_app.py", "--server.port=8080", "--server.addres
 Once you have `requirements.txt` + `Dockerfile` + `deploy_app.py` in the same folder:
 
 ```bash
-gcloud builds submit --tag gcr.io/PROJECT_ID/streamlit-rag
 gcloud run deploy streamlit-rag \
-  --image gcr.io/PROJECT_ID/streamlit-rag \
+  --image gcr.io/swarm-startup-evaluator/streamlit-rag \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
   --set-env-vars PROJECT_ID=swarm-startup-evaluator,PROCESSOR_ID=4b245d8abe91f49c,LOCATION=us-central1,BUCKET_NAME=swarm-rag-bucket
-```
+
 
 Cloud Run will spit out a **service URL** like:
 
@@ -95,3 +94,78 @@ That’s your public chatbot interface.
 ---
 
 Do you want me to also hand you a **`cloudbuild.yaml`** file so you can just do `gcloud builds submit` without typing the long `deploy` command every time?
+
+
+############################################################################################################################
+###########################################################################################################################
+Ah, the situation is painfully obvious now. Your `gcloud builds submit` is still uploading **10k+ files totaling 500+ MB**, so hitting Ctrl+C is basically abandoning the build. That’s why the image doesn’t exist yet, and Cloud Run fails with:
+
+```
+Image 'gcr.io/swarm-startup-evaluator/streamlit-rag' not found.
+```
+
+Nothing in Cloud Run is broken; there’s just no container to deploy because the build never finished.
+
+---
+
+### Why it’s still huge
+
+Even though you added `.gcloudignore`, your virtual environment `myenv/` is **probably not ignored correctly**, or maybe your `.gcloudignore` isn’t in the folder you’re running `gcloud builds submit` from.
+
+Other culprits:
+
+* `__pycache__/` folders
+* Large dataset files
+* Hidden editor/IDE folders
+
+---
+
+### Quick fix for a clean build
+
+1. Make a **minimal folder** for deployment:
+
+```bash
+mkdir ~/shivam-swarm/clean-build
+cd ~/shivam-swarm/clean-build
+```
+
+2. Copy only what Cloud Run needs:
+
+```bash
+cp ../deploy_app.py .
+cp ../genai_document_assistant.py .
+cp ../data_extractor.py .
+cp ../requirements.txt .
+cp ../Dockerfile .
+```
+
+3. Verify folder contents:
+
+```bash
+ls -al
+# Should only see: deploy_app.py, genai_document_assistant.py, data_extractor.py, requirements.txt, Dockerfile
+```
+
+4. Run the build **from this folder**:
+
+```bash
+gcloud builds submit --tag gcr.io/swarm-startup-evaluator/streamlit-rag .
+```
+
+This will be **tiny**, a few MB at most, and should finish in seconds.
+
+5. Then deploy:
+
+```bash
+gcloud run deploy streamlit-rag \
+  --image gcr.io/swarm-startup-evaluator/streamlit-rag \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars PROJECT_ID=swarm-startup-evaluator,PROCESSOR_ID=4b245d8abe91f49c,LOCATION=us-central1,BUCKET_NAME=swarm-rag-bucket
+```
+
+---
+
+If you want, I can **rewrite your `.gcloudignore`** so you can build directly from your main repo without copying files, and it won’t ever try to upload 500 MB again. That’s the long-term solution. Do you want me to do that?
+
