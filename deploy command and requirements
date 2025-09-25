@@ -13,6 +13,40 @@ google-auth-oauthlib==1.1.0
 google-auth-httplib2==0.2.0
 
 #########################################################
+Make a .gcloudignore file (same idea as .gitignore) in your project root. Example:
+
+# Ignore Python junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore venv
+venv/
+.venv/
+
+# Ignore Git
+.git/
+.gitignore
+
+# Ignore local configs
+*.log
+.DS_Store
+
+# Ignore IDE clutter
+.vscode/
+.idea/
+
+# Ignore big junk
+*.tar
+*.tgz
+*.zip
+*.bak
+
+
+When gcloud builds submit runs, it will skip all of those.
+
+###############################################################################################
 
 ### Dockerfile (needed for Cloud Run)
 
