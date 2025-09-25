@@ -13,7 +13,7 @@ Supported file types:
 If an extraction fails, the method returns an empty string and prints a warning –
 this keeps the rest of the pipeline running.
 """
-cat > data_extractor.py << 'EOF'
+#cat > data_extractor.py << 'EOF'
 import os
 import tempfile
 from typing import Optional
