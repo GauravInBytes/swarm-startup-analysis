@@ -1,0 +1,63 @@
+### requirements.txt
+streamlit==1.49.1
+google-cloud-storage==2.18.2
+google-cloud-speech==2.26.0
+google-cloud-videointelligence==2.13.0
+pdfminer.six==20231228
+python-docx==1.1.2
+python-pptx==0.6.23
+google-cloud-aiplatform==1.115.0
+vertexai==1.43.0
+google-auth==2.40.3
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.2.0
+
+#########################################################
+
+### Dockerfile (needed for Cloud Run)
+
+```dockerfile
+# Use official Streamlit image
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app code
+COPY . .
+
+# Run Streamlit on port 8080 (Cloud Run requirement)
+EXPOSE 8080
+CMD ["streamlit", "run", "deploy_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
+```
+
+---
+######################################################################################################
+### Deployment command
+
+Once you have `requirements.txt` + `Dockerfile` + `deploy_app.py` in the same folder:
+
+```bash
+gcloud builds submit --tag gcr.io/PROJECT_ID/streamlit-rag
+gcloud run deploy streamlit-rag \
+  --image gcr.io/PROJECT_ID/streamlit-rag \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars PROJECT_ID=swarm-startup-evaluator,PROCESSOR_ID=4b245d8abe91f49c,LOCATION=us-central1,BUCKET_NAME=swarm-rag-bucket
+```
+
+Cloud Run will spit out a **service URL** like:
+
+```
+https://streamlit-rag-abc123-uc.a.run.app
+```
+
+That’s your public chatbot interface.
+
+---
+
+Do you want me to also hand you a **`cloudbuild.yaml`** file so you can just do `gcloud builds submit` without typing the long `deploy` command every time?
