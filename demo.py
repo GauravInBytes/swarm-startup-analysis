@@ -1,14 +1,14 @@
 # --------------------------------------------------------------
 # demo.py – quick interactive demo
 # --------------------------------------------------------------
-cat > demo.py << 'EOF'
+#cat > demo.py << 'EOF'
 from genai_document_assistant import GenAIDocumentAssistant
 
 # ------------------------------------------------------------------
 # Fill in your project / processor IDs
 # ------------------------------------------------------------------
-PROJECT_ID   = "swarm-minds"
-PROCESSOR_ID = "535a6eb0c54bad47"   # <-- replace if different
+PROJECT_ID   = "swarm-startup-evaluator"
+PROCESSOR_ID = "4b245d8abe91f49c"   # <-- replace if different
 
 # ------------------------------------------------------------------
 # Instantiate the assistant
@@ -22,7 +22,7 @@ assistant = GenAIDocumentAssistant(
 # ------------------------------------------------------------------
 # Load the extracted docs from the bucket
 # ------------------------------------------------------------------
-NUM = assistant.load_documents_from_gcs("swarm-minds-extracted-text")
+NUM = assistant.load_documents_from_gcs("swarm-rag-bucket")
 print(f"\nLoaded {NUM} documents.\n")
 
 # ------------------------------------------------------------------
