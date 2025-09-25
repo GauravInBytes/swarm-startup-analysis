@@ -1,7 +1,7 @@
 # --------------------------------------------------------------
 # genai_document_assistant.py
 # --------------------------------------------------------------
-cat > genai_document_assistant.py << 'EOF'
+#cat > genai_document_assistant.py << 'EOF'
 import os
 import json
 import tempfile
